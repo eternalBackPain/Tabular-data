@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Sketch</title>
+
+  <link rel="stylesheet" type="text/css" href="style.css">
+
+  <script src="libraries/p5.min.js"></script>
+  <script src="libraries/p5.sound.min.js"></script>
+
+  <!-- USING CHART.JS, ADDING THEIR CDN SCRIPT -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+
+</head>
+
+<body>
+  <!-- ADD A CANVAS -->
+  <canvas id="chart" width="800" height="400"></canvas>
+  <script>
+    
+    const xlabels = [];
+    let ytemps = [];
+
+    chartIt();
+
+    async function chartIt() {
+      await getData();
+
+      //HERE IS THE TEMPLATE FOR GRAPH INSERTED FROM https://www.chartjs.org/docs/latest/getting-started/
+      const data = {
+        labels: xlabels,
+        datasets: [{
+          label: 'NASA Temp Data',
+          backgroundColor: 'rgb(255, 99, 132)',
+          borderColor: 'rgb(255, 99, 132)',
+          data: ytemps,
+        }]
+      }
+      const config = {
+        type: 'line',
+        data: data,
+        options: {}
+      };
+      const myChart = new Chart(
+        document.getElementById('chart'),
+        config
+      );
+
+    }
+
+    async function getData() {
+      console.log('calling');
+      const response = await fetch('ZonAnn.Ts+dSST.csv');
+      //using the 'text' method in the fetch API, we now convert the response into
+      //a text format and store in var 'data'
+      const data = await response.text();
+      console.log('loaded');
+      // console.log(data);
+
+      //now that its loaded (as you can see in console), we need to parse the data,
+      //meaning to split each number from its commas. There is the func loadTable()
+      //do do this but this will now be done manually (split() func):
+
+      const table = data.split('\n').slice(1); //backslash = linebreak, and the slice
+      //removes index 1 row
+      // console.log(table); // we see its split into three arrays
+      //now to split further
+      table.forEach(row => { // same as a for loop for each row of the array
+        const columns = row.split(',')
+        // console.log(row) // we now have each year as its separate array 
+        const year = columns[0];
+        xlabels.push(year); //this adds each year as it loops to the labels
+        const temp = columns[1];
+        ytemps.push(parseFloat(temp) + 14);
+        console.log(year, parseFloat(temp) + 14);
+      });
+
+      //once you write this code from the test file just replace the test.csv with
+      //the original one
+
+      //in sum, you get the raw data as text, split it up and put it into a variable 
+      //called table, go through each row and split it up into columns
+
+    }
+  </script>
+
+
+
+  <!-- <script src="sketch.js"></script> -->
+</body>
+
+</html>
